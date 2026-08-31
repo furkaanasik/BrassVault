@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: brassvault-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/brassvault}
+    username: ${DB_USER:brassvault}
+    password: ${DB_PASSWORD:brassvault}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+vault:
+  master-key: ${VAULT_MASTER_KEY:}
+
+jwt:
+  # HMAC signing secret; generated at startup if empty (tokens invalidate on restart)
+  secret: ${JWT_SECRET:}
+  ttl-hours: 8
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+admin:
+  email: ${ADMIN_EMAIL:admin@brassvault.local}
+  initial-password: ${ADMIN_INITIAL_PASSWORD:}
