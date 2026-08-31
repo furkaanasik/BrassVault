@@ -52,7 +52,7 @@ export function AuditLogs() {
                     <td>{a.userEmail}</td>
                     <td><span className={`badge badge-${a.action.toLowerCase()}`}>{a.action}</span></td>
                     <td>{a.itemTitle}</td>
-                    <td>{a.teamName}</td>
+                    <td>{a.teamName ?? (a.itemTitle != null ? <span className="muted">Kişisel</span> : null)}</td>
                     <td className="muted">{a.ipAddress}</td>
                   </tr>
                 ))}

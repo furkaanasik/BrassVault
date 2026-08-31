@@ -21,7 +21,7 @@ public class Item {
     @Column(name = "team_id")
     private Long teamId;
 
-    // reserved for v2 personal vault; never written by v1 endpoints
+    // set for personal-vault items; null for team items (see item_owner_check)
     @Column(name = "owner_id")
     private Long ownerId;
 

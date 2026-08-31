@@ -30,7 +30,7 @@ export interface CreatedUser extends Omit<UserRow, 'active' | 'mustChangePasswor
 
 export interface Item {
   id: number
-  teamId: number
+  teamId: number | null
   title: string
   username: string | null
   url: string | null

@@ -21,6 +21,13 @@ public final class ItemDtos {
                                     String notes) {
     }
 
+    public record CreatePersonalItemRequest(@NotBlank @Size(max = 255) String title,
+                                            @Size(max = 255) String username,
+                                            @NotBlank String password,
+                                            @Size(max = 1024) String url,
+                                            String notes) {
+    }
+
     public record UpdateItemRequest(@NotBlank @Size(max = 255) String title,
                                     @Size(max = 255) String username,
                                     String password,
