@@ -81,3 +81,12 @@ export const LockIcon = icon(
     <path d="M8 10.5V7.5a4 4 0 018 0v3" />
   </>,
 )
+
+export const CopyIcon = icon(
+  <>
+    <rect x="9" y="9" width="11" height="11" rx="2" />
+    <path d="M5.5 15H5a1.5 1.5 0 01-1.5-1.5v-9A1.5 1.5 0 015 3h9a1.5 1.5 0 011.5 1.5V5" />
+  </>,
+)
+
+export const CheckIcon = icon(<path d="M5 12.5l4.5 4.5L19 7.5" />)

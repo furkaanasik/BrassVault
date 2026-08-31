@@ -122,6 +122,11 @@ cd web && pnpm build                 # tsc -b && vite build
   tek (`findByIdForUser` owner-OR-üyelik, EXISTS ile). Audit `teamName=null` ile
   kişisel kaydı işaretler (başlık admin'e görünür — bilinçli karar);
   AuditLogs UI'da "Kişisel" göstergesi. Testler: `PersonalVaultFlowIT`.
+- Kopyalama (2026-09-01): tablo hücrelerinde kullanıcı adı + URL için ikon
+  kopyalama (`CopyButton.tsx`, hover'da belirir, `.icon-btn`); şifrede ayrıca
+  **göstermeden kopyala** — secret endpoint'ini çağırır (VIEW_SECRET audit'i
+  yine yazılır), değer ekrana hiç gelmeden panoya gider. `CopyIcon/CheckIcon`
+  Icons.tsx'te. Test: `CopyButton.test.tsx`.
 - UI 2026-08-31'de baştan tasarlandı: sidebar'lı shell, split-hero login,
   tablo/badge/empty-state bileşenleri. Motion CSS-only + bir React hook:
   - Timing: `--ease: cubic-bezier(0.2,0,0,1)`, `--t-fast/base/slow` =

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom'
 import { api } from '../api'
 import { useAuth } from '../auth'
 import { SecretCell } from '../components/SecretCell'
+import { CopyButton } from '../components/CopyButton'
 import { LockIcon } from '../components/Icons'
 import type { Item } from '../types'
 
@@ -146,9 +147,23 @@ export function TeamVault() {
               {items.map((item, i) => (
                 <tr key={item.id} style={{ '--i': i } as React.CSSProperties}>
                   <td>{item.title}</td>
-                  <td>{item.username}</td>
+                  <td>
+                    {item.username && (
+                      <span className="cell-copy">
+                        <span>{item.username}</span>
+                        <CopyButton getText={() => item.username ?? ''} />
+                      </span>
+                    )}
+                  </td>
                   <td className="secret-col"><SecretCell itemId={item.id} /></td>
-                  <td>{item.url && <a href={item.url} target="_blank" rel="noreferrer">{item.url}</a>}</td>
+                  <td>
+                    {item.url && (
+                      <span className="cell-copy">
+                        <a href={item.url} target="_blank" rel="noreferrer">{item.url}</a>
+                        <CopyButton getText={() => item.url ?? ''} />
+                      </span>
+                    )}
+                  </td>
                   <td className="muted wrap">{item.notes}</td>
                   {isAdmin && (
                     <td>
