@@ -4,10 +4,11 @@ import { Login } from './pages/Login'
 import { ChangePassword } from './pages/ChangePassword'
 import { Teams } from './pages/Teams'
 import { TeamVault } from './pages/TeamVault'
+import { PersonalVault } from './pages/PersonalVault'
 import { AdminUsers } from './pages/AdminUsers'
 import { AdminTeams } from './pages/AdminTeams'
 import { AuditLogs } from './pages/AuditLogs'
-import { AuditIcon, KeyIcon, LogoutIcon, ShieldIcon, TeamIcon, UsersIcon, VaultIcon } from './components/Icons'
+import { AuditIcon, KeyIcon, LockIcon, LogoutIcon, ShieldIcon, TeamIcon, UsersIcon, VaultIcon } from './components/Icons'
 
 function initials(email: string): string {
   const name = email.split('@')[0]
@@ -36,6 +37,10 @@ function Shell() {
             <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
               <VaultIcon />
               <span>Ekiplerim</span>
+            </NavLink>
+            <NavLink to="/vault" className={({ isActive }) => `nav-link${isActive ? ' active' : ''}`}>
+              <LockIcon />
+              <span>Kişisel Kasam</span>
             </NavLink>
             {me.role === 'ADMIN' && (
               <>
@@ -79,6 +84,7 @@ function Shell() {
           <Routes>
             <Route path="/" element={<Teams />} />
             <Route path="/teams/:teamId" element={<TeamVault />} />
+            <Route path="/vault" element={<PersonalVault />} />
             <Route path="/password" element={<ChangePassword />} />
             {me.role === 'ADMIN' && (
               <>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
+import { api } from '../api'
 import { REVEAL_DURATION_MS, useSecretReveal } from '../hooks/useSecretReveal'
+import { CopyButton } from './CopyButton'
 
 const SCRAMBLE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789#$%&@!'
 const SCRAMBLE_MS = 700
@@ -69,12 +71,17 @@ export function SecretCell({ itemId }: { itemId: number }) {
       </span>
     )
   }
+  // copy-without-reveal still hits the secret endpoint, so it is audited server-side
+  const fetchSecret = async () =>
+    (await api.get<{ password: string }>(`/api/items/${itemId}/secret`)).password
+
   return (
     <span className="secret-cell">
       <span className="secret-mask">••••••••</span>
       <button type="button" className="ghost sm" onClick={() => void reveal()} disabled={loading}>
         {loading ? '…' : 'Göster'}
       </button>
+      <CopyButton label="Göstermeden kopyala" getText={fetchSecret} />
       {error && <span className="error">{error}</span>}
     </span>
   )

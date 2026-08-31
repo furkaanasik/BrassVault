@@ -322,6 +322,33 @@ button.danger:hover:not(:disabled) { background: var(--danger-dim); color: var(-
 
 button.sm { padding: 0.28rem 0.65rem; font-size: 0.78rem; border-radius: 6px; }
 
+/* icon-only copy buttons — quiet until the row is hovered */
+button.icon-btn {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  padding: 0.24rem 0.34rem;
+  border-radius: 6px;
+  line-height: 0;
+  opacity: 0.45;
+}
+tr:hover button.icon-btn,
+button.icon-btn:focus-visible { opacity: 1; }
+button.icon-btn:hover:not(:disabled) {
+  background: var(--surface-2);
+  color: var(--text);
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+button.icon-btn.failed { color: var(--danger); opacity: 1; }
+
+.cell-copy { display: inline-flex; align-items: center; gap: 0.25rem; max-width: 100%; }
+.cell-copy > span:first-child,
+.cell-copy > a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-copy button.icon-btn { flex-shrink: 0; }
+
 /* ---------- forms ---------- */
 
 input, select, textarea {

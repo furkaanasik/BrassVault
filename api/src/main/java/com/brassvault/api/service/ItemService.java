@@ -58,6 +58,9 @@ public class ItemService {
                            String url, String notes, String adminEmail, String ip) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (item.getOwnerId() != null) {
+            throw new NotFoundException("Item not found");
+        }
         item.setTitle(title);
         item.setUsername(username);
         item.setUrl(url);
@@ -75,6 +78,9 @@ public class ItemService {
     public void deleteItem(Long itemId, String adminEmail, String ip) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Item not found"));
+        if (item.getOwnerId() != null) {
+            throw new NotFoundException("Item not found");
+        }
         String title = item.getTitle();
         String team = teamName(item);
         itemRepository.delete(item);
@@ -95,6 +101,62 @@ public class ItemService {
         String plaintext = crypto.decrypt(item.getEncryptedPassword(), item.getId());
         auditService.record(userEmail, AuditAction.VIEW_SECRET, item.getTitle(), teamName(item), ip);
         return plaintext;
+    }
+
+    /**
+     * The row is inserted first so the generated id exists, then the password is
+     * encrypted with that id as AAD and the row updated — all in one transaction.
+     */
+    @Transactional
+    public Item createPersonalItem(String title, String username, String password,
+                                   String url, String notes, Long ownerId,
+                                   String ownerEmail, String ip) {
+        Item item = new Item();
+        item.setOwnerId(ownerId);
+        item.setTitle(title);
+        item.setUsername(username);
+        item.setUrl(url);
+        item.setNotes(notes);
+        item.setCreatedBy(ownerId);
+        item.setEncryptedPassword(new byte[0]);
+        item = itemRepository.saveAndFlush(item);
+        item.setEncryptedPassword(crypto.encrypt(password, item.getId()));
+        item = itemRepository.save(item);
+        auditService.record(ownerEmail, AuditAction.CREATE_ITEM, title, null, ip);
+        return item;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Item> listPersonalItems(Long ownerId) {
+        return itemRepository.findAllByOwnerId(ownerId);
+    }
+
+    @Transactional
+    public Item updatePersonalItem(Long itemId, Long ownerId, String title, String username,
+                                   String password, String url, String notes,
+                                   String ownerEmail, String ip) {
+        Item item = itemRepository.findByIdAndOwnerId(itemId, ownerId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
+        item.setTitle(title);
+        item.setUsername(username);
+        item.setUrl(url);
+        item.setNotes(notes);
+        if (password != null && !password.isEmpty()) {
+            item.setEncryptedPassword(crypto.encrypt(password, item.getId()));
+        }
+        item.setUpdatedAt(OffsetDateTime.now());
+        item = itemRepository.save(item);
+        auditService.record(ownerEmail, AuditAction.UPDATE_ITEM, item.getTitle(), null, ip);
+        return item;
+    }
+
+    @Transactional
+    public void deletePersonalItem(Long itemId, Long ownerId, String ownerEmail, String ip) {
+        Item item = itemRepository.findByIdAndOwnerId(itemId, ownerId)
+                .orElseThrow(() -> new NotFoundException("Item not found"));
+        String title = item.getTitle();
+        itemRepository.delete(item);
+        auditService.record(ownerEmail, AuditAction.DELETE_ITEM, title, null, ip);
     }
 
     private String teamName(Item item) {

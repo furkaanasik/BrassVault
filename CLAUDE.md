@@ -29,7 +29,7 @@ api/                          Spring Boot 3 backend (Maven, Java 21)
   src/test/                   Testcontainers ile gerçek Postgres üzerinde IT'ler
 
 web/                          React 18 + TypeScript + Vite frontend (pnpm)
-  src/pages/                  Login, ChangePassword, Teams, TeamVault, AdminUsers, AdminTeams, AuditLogs
+  src/pages/                  Login, ChangePassword, Teams, TeamVault, PersonalVault, AdminUsers, AdminTeams, AuditLogs
   src/components/SecretCell.tsx    Şifre göster/gizle hücresi
   src/hooks/useSecretReveal.ts     30 sn sonra otomatik gizleme
   src/api.ts                  Fetch wrapper; src/auth.tsx auth context
@@ -63,7 +63,9 @@ web/                          React 18 + TypeScript + Vite frontend (pnpm)
 | POST | `/api/me/password` | kendi şifresini değiştir |
 | GET | `/api/teams` | üyesi olunan ekipler |
 | GET | `/api/teams/{id}/items` | item listesi (şifre HARİÇ) |
-| GET | `/api/items/{id}/secret` | şifreyi çözer, VIEW_SECRET audit'i yazar |
+| GET | `/api/items/{id}/secret` | şifreyi çözer (ekip üyesi VEYA owner), VIEW_SECRET audit'i yazar |
+| GET/POST | `/api/vault/items` | kişisel kasa: listele / oluştur (herkes, kendi kayıtları) |
+| PUT/DELETE | `/api/vault/items/{id}` | kişisel kayıt güncelle / sil (sadece owner) |
 | POST/GET | `/api/admin/users` | kullanıcı oluştur (geçici şifre) / listele |
 | PATCH | `/api/admin/users/{id}` | rol değiştir / deaktive et |
 | POST/GET | `/api/admin/teams` | ekip oluştur / listele |
@@ -112,6 +114,19 @@ cd web && pnpm build                 # tsc -b && vite build
 ## Bilinen durum
 
 - Fonksiyonellik tamam ve çalışıyor.
+- Kişisel kasa (2026-09-01): her kullanıcı `/vault`'ta kendi credential'larını
+  CRUD eder (`/api/vault/items`, `items.owner_id` — V1'den beri şemada, V2 sadece
+  index ekledi). **Tamamen özel**: admin dahil başkası kişisel kayda erişemez —
+  admin item endpoint'lerinde service-level guard (`ownerId != null` → 404),
+  diğer her yol repository sorgusunda owner filtresiyle 404. Secret endpoint'i
+  tek (`findByIdForUser` owner-OR-üyelik, EXISTS ile). Audit `teamName=null` ile
+  kişisel kaydı işaretler (başlık admin'e görünür — bilinçli karar);
+  AuditLogs UI'da "Kişisel" göstergesi. Testler: `PersonalVaultFlowIT`.
+- Kopyalama (2026-09-01): tablo hücrelerinde kullanıcı adı + URL için ikon
+  kopyalama (`CopyButton.tsx`, hover'da belirir, `.icon-btn`); şifrede ayrıca
+  **göstermeden kopyala** — secret endpoint'ini çağırır (VIEW_SECRET audit'i
+  yine yazılır), değer ekrana hiç gelmeden panoya gider. `CopyIcon/CheckIcon`
+  Icons.tsx'te. Test: `CopyButton.test.tsx`.
 - UI 2026-08-31'de baştan tasarlandı: sidebar'lı shell, split-hero login,
   tablo/badge/empty-state bileşenleri. Motion CSS-only + bir React hook:
   - Timing: `--ease: cubic-bezier(0.2,0,0,1)`, `--t-fast/base/slow` =
