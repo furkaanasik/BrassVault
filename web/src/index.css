@@ -382,6 +382,15 @@ label input, label select, label textarea { margin-top: 0.32rem; color: var(--te
 
 form .form-actions { display: flex; gap: 0.6rem; margin-top: 1.1rem; }
 
+/* custom field editor: key/value rows + add button */
+.custom-fields { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.4rem; }
+.custom-field-row { display: flex; gap: 0.5rem; align-items: center; }
+.custom-field-row input { flex: 1; min-width: 0; }
+.custom-field-row button { flex-shrink: 0; }
+.custom-fields > button { align-self: flex-start; }
+.checkbox-row { display: flex; align-items: center; gap: 0.5rem; }
+.checkbox-row input[type='checkbox'] { width: auto; margin-top: 0; }
+
 /* ---------- cards / panels ---------- */
 
 .card {
@@ -696,11 +705,12 @@ td select { width: auto; padding: 0.28rem 0.5rem; font-size: 0.82rem; }
 /* table-layout: fixed — column widths come from the header row only, so
    cell content changes (reveal, loading dots, button swaps) can never
    reflow the columns, not even for a frame */
-table.table-fixed { table-layout: fixed; }
-table.table-fixed td { overflow: hidden; text-overflow: ellipsis; }
+table.table-fixed { table-layout: fixed; min-width: 960px; }
+table.table-fixed td, table.table-fixed th { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+table.table-fixed td.wrap { white-space: normal; }
 th.secret-col, td.secret-col { width: 380px; }
 th.actions-col { width: 170px; }
-.secret-cell { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 37px; }
+.secret-cell { display: flex; align-items: center; gap: 0.5rem; width: 100%; min-height: 37px; flex-wrap: wrap; }
 .secret-cell button { flex-shrink: 0; }
 .secret-cell button:first-of-type { min-width: 96px; } /* Kopyala ↔ Kopyalandı ✓ */
 .secret-cell .countdown { flex-shrink: 0; }
@@ -743,6 +753,27 @@ th.actions-col { width: 170px; }
   from { transform: scaleX(1); }
   to { transform: scaleX(0); }
 }
+
+/* custom fields under the revealed secret — hidden/cleared together with it */
+.secret-fields {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 2px;
+}
+.secret-field-row { display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+.secret-field-row > .muted {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.secret-field-row .secret-value { flex: 1; min-width: 0; }
+.secret-field-row button { flex-shrink: 0; }
 
 button.pop { animation: pop 300ms var(--ease-out); }
 @keyframes pop {

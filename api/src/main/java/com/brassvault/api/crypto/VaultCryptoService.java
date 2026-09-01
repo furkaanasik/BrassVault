@@ -30,13 +30,18 @@ public class VaultCryptoService {
     }
 
     public byte[] encrypt(String plaintext, long itemId) {
+        return encrypt(plaintext, itemId, "");
+    }
+
+    /** context differentiates blobs of the same item (e.g. ":fields") so they cannot be swapped across columns. */
+    public byte[] encrypt(String plaintext, long itemId, String context) {
         try {
             byte[] iv = new byte[IV_LENGTH_BYTES];
             secureRandom.nextBytes(iv);
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.ENCRYPT_MODE, masterKeyProvider.key(),
                     new GCMParameterSpec(TAG_LENGTH_BITS, iv));
-            cipher.updateAAD(aad(itemId));
+            cipher.updateAAD(aad(itemId, context));
             byte[] ciphertextAndTag = cipher.doFinal(plaintext.getBytes(UTF_8));
             return ByteBuffer.allocate(iv.length + ciphertextAndTag.length)
                     .put(iv)
@@ -48,6 +53,10 @@ public class VaultCryptoService {
     }
 
     public String decrypt(byte[] blob, long itemId) {
+        return decrypt(blob, itemId, "");
+    }
+
+    public String decrypt(byte[] blob, long itemId, String context) {
         if (blob == null || blob.length < IV_LENGTH_BYTES + TAG_LENGTH_BITS / 8) {
             throw new VaultCryptoException("Encrypted blob is too short");
         }
@@ -55,7 +64,7 @@ public class VaultCryptoService {
             Cipher cipher = Cipher.getInstance(TRANSFORMATION);
             cipher.init(Cipher.DECRYPT_MODE, masterKeyProvider.key(),
                     new GCMParameterSpec(TAG_LENGTH_BITS, blob, 0, IV_LENGTH_BYTES));
-            cipher.updateAAD(aad(itemId));
+            cipher.updateAAD(aad(itemId, context));
             byte[] plaintext = cipher.doFinal(blob, IV_LENGTH_BYTES, blob.length - IV_LENGTH_BYTES);
             return new String(plaintext, UTF_8);
         } catch (GeneralSecurityException e) {
@@ -63,7 +72,8 @@ public class VaultCryptoService {
         }
     }
 
-    private static byte[] aad(long itemId) {
-        return Long.toString(itemId).getBytes(UTF_8);
+    // "" context yields the same bytes as the pre-context AAD, so old blobs still decrypt
+    private static byte[] aad(long itemId, String context) {
+        return (itemId + context).getBytes(UTF_8);
     }
 }

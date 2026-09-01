@@ -38,8 +38,8 @@ public class ItemController {
     public SecretResponse secret(@PathVariable Long id,
                                  @AuthenticationPrincipal AuthPrincipal principal,
                                  HttpServletRequest request) {
-        String password = itemService.revealSecret(id, principal.id(), principal.email(),
+        var revealed = itemService.revealSecret(id, principal.id(), principal.email(),
                 request.getRemoteAddr());
-        return new SecretResponse(password);
+        return new SecretResponse(revealed.password(), revealed.fields());
     }
 }

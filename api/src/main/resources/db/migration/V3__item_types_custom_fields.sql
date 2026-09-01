@@ -1,0 +1,3 @@
+ALTER TABLE items
+    ADD COLUMN type VARCHAR(32) NOT NULL DEFAULT 'LOGIN',
+    ADD COLUMN encrypted_fields BYTEA;

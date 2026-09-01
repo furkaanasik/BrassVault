@@ -39,7 +39,7 @@ function useScramble(target: string | null): string {
 }
 
 export function SecretCell({ itemId }: { itemId: number }) {
-  const { password, error, loading, reveal, hide } = useSecretReveal(itemId)
+  const { password, fields, error, loading, reveal, hide } = useSecretReveal(itemId)
   const scrambled = useScramble(password)
   const [secondsLeft, setSecondsLeft] = useState(0)
   const [copied, setCopied] = useState(false)
@@ -68,6 +68,17 @@ export function SecretCell({ itemId }: { itemId: number }) {
         <button type="button" className={copied ? 'ghost sm pop' : 'ghost sm'} onClick={copy}>{copied ? 'Kopyalandı ✓' : 'Kopyala'}</button>
         <button type="button" className="ghost sm" onClick={hide}>Gizle</button>
         <span className="countdown">{secondsLeft}s</span>
+        {fields && Object.keys(fields).length > 0 && (
+          <span className="secret-fields">
+            {Object.entries(fields).map(([k, v]) => (
+              <span key={k} className="secret-field-row">
+                <span className="muted">{k}</span>
+                <code className="secret-value">{v}</code>
+                <button type="button" className="ghost sm" onClick={() => void navigator.clipboard.writeText(v)}>Kopyala</button>
+              </span>
+            ))}
+          </span>
+        )}
       </span>
     )
   }

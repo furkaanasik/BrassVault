@@ -34,6 +34,15 @@ public class Item {
     @Column(name = "encrypted_password", nullable = false)
     private byte[] encryptedPassword;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private ItemType type = ItemType.LOGIN;
+
+    // encrypted JSON map of extra secret fields; null when the item has none
+    @ToString.Exclude
+    @Column(name = "encrypted_fields")
+    private byte[] encryptedFields;
+
     @Column(length = 1024)
     private String url;
 
