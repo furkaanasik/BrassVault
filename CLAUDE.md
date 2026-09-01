@@ -63,7 +63,7 @@ web/                          React 18 + TypeScript + Vite frontend (pnpm)
 | POST | `/api/me/password` | kendi şifresini değiştir |
 | GET | `/api/teams` | üyesi olunan ekipler |
 | GET | `/api/teams/{id}/items` | item listesi (şifre HARİÇ) |
-| GET | `/api/items/{id}/secret` | şifreyi çözer (ekip üyesi VEYA owner), VIEW_SECRET audit'i yazar |
+| GET | `/api/items/{id}/secret` | şifre + custom field'ları çözer (`{password, fields}`), tek VIEW_SECRET audit'i |
 | GET/POST | `/api/vault/items` | kişisel kasa: listele / oluştur (herkes, kendi kayıtları) |
 | PUT/DELETE | `/api/vault/items/{id}` | kişisel kayıt güncelle / sil (sadece owner) |
 | POST/GET | `/api/admin/users` | kullanıcı oluştur (geçici şifre) / listele |
@@ -122,6 +122,22 @@ cd web && pnpm build                 # tsc -b && vite build
   tek (`findByIdForUser` owner-OR-üyelik, EXISTS ile). Audit `teamName=null` ile
   kişisel kaydı işaretler (başlık admin'e görünür — bilinçli karar);
   AuditLogs UI'da "Kişisel" göstergesi. Testler: `PersonalVaultFlowIT`.
+- Item tipleri + custom field'lar (2026-09-01): her item bir tip taşır
+  (`ItemType`: LOGIN, API_KEY, SSH_KEY, SECURE_NOTE, DB_CONNECTION; V3 ile
+  `items.type` plaintext kolon, default LOGIN) ve tip başına ekstra gizli
+  key→value alanlar `items.encrypted_fields BYTEA`'da tek şifreli JSON blob
+  olarak durur. AAD context'i `itemId + ":fields"` (`VaultCryptoService`'e
+  context'li overload; `""` context'i eski AAD'yle byte-aynı → eski blob'lar
+  çözülür, blob'lar kolonlar/item'lar arası taşınamaz). Update semantiği:
+  `customFields` null → koru, `{}` → temizle, dolu → komple REPLACE.
+  Limitler service'te: max 20 alan, key ≤64, value ≤10k → aşımı 400.
+  Liste asla field taşımaz (key bile yok); sadece reveal döner, tek
+  VIEW_SECRET. `encrypted_password` dokunulmadı — primary secret'ın anlamı
+  tipe göre değişir (UI etiketi), backend'de hep `password`. FE: `itemTypes.ts`
+  tip metadata'sı (etiket/secretLabel/showUsername/showUrl/suggestedFields),
+  `CustomFieldsEditor.tsx` key-value editörü, edit modunda "Özel alanları
+  değiştir" toggle'ı (kapalı → null gönderilir, mevcutlar korunur). Testler:
+  `ItemTypeCustomFieldsIT` (blob-swap/context testi dahil).
 - Kopyalama (2026-09-01): tablo hücrelerinde kullanıcı adı + URL için ikon
   kopyalama (`CopyButton.tsx`, hover'da belirir, `.icon-btn`); şifrede ayrıca
   **göstermeden kopyala** — secret endpoint'ini çağırır (VIEW_SECRET audit'i

@@ -28,6 +28,8 @@ export interface CreatedUser extends Omit<UserRow, 'active' | 'mustChangePasswor
   tempPassword: string
 }
 
+export type ItemType = 'LOGIN' | 'API_KEY' | 'SSH_KEY' | 'SECURE_NOTE' | 'DB_CONNECTION'
+
 export interface Item {
   id: number
   teamId: number | null
@@ -35,8 +37,14 @@ export interface Item {
   username: string | null
   url: string | null
   notes: string | null
+  type: ItemType
   createdAt: string
   updatedAt: string
+}
+
+export interface SecretPayload {
+  password: string
+  fields: Record<string, string>
 }
 
 export interface AuditLog {

@@ -35,8 +35,7 @@ public class VaultController {
     public ResponseEntity<ItemResponse> create(@Valid @RequestBody CreatePersonalItemRequest body,
                                                @AuthenticationPrincipal AuthPrincipal principal,
                                                HttpServletRequest request) {
-        var item = itemService.createPersonalItem(body.title(), body.username(),
-                body.password(), body.url(), body.notes(),
+        var item = itemService.createPersonalItem(body.toInput(),
                 principal.id(), principal.email(), request.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.CREATED).body(ItemResponse.from(item));
     }
@@ -46,8 +45,7 @@ public class VaultController {
                                @Valid @RequestBody UpdateItemRequest body,
                                @AuthenticationPrincipal AuthPrincipal principal,
                                HttpServletRequest request) {
-        var item = itemService.updatePersonalItem(id, principal.id(), body.title(),
-                body.username(), body.password(), body.url(), body.notes(),
+        var item = itemService.updatePersonalItem(id, principal.id(), body.toInput(),
                 principal.email(), request.getRemoteAddr());
         return ItemResponse.from(item);
     }

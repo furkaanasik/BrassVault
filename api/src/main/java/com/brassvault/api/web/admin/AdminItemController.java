@@ -26,8 +26,7 @@ public class AdminItemController {
     public ResponseEntity<ItemResponse> create(@Valid @RequestBody CreateItemRequest body,
                                                @AuthenticationPrincipal AuthPrincipal principal,
                                                HttpServletRequest request) {
-        var item = itemService.createItem(body.teamId(), body.title(), body.username(),
-                body.password(), body.url(), body.notes(),
+        var item = itemService.createItem(body.teamId(), body.toInput(),
                 principal.id(), principal.email(), request.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.CREATED).body(ItemResponse.from(item));
     }
@@ -37,8 +36,8 @@ public class AdminItemController {
                                @Valid @RequestBody UpdateItemRequest body,
                                @AuthenticationPrincipal AuthPrincipal principal,
                                HttpServletRequest request) {
-        var item = itemService.updateItem(id, body.title(), body.username(), body.password(),
-                body.url(), body.notes(), principal.email(), request.getRemoteAddr());
+        var item = itemService.updateItem(id, body.toInput(),
+                principal.email(), request.getRemoteAddr());
         return ItemResponse.from(item);
     }
 
